@@ -1,0 +1,54 @@
+name: eostool
+version: "1.0"
+author: Fred Hsu <fredlhsu@arista.com>
+about: Remotely runs commands against an EOS device
+settings:
+    - ArgRequiredElseHelp
+args:
+    - timestamps:
+        short: t
+        long: timestamps
+        help: Enable timestamps for eAPI calls
+        takes_value: false
+    - ssl:
+        short: s
+        long: ssl
+        help: Use HTTPS for eAPI call
+        takes_value: false
+    - enable:
+        short: E
+        long: enable
+        help: Run commands in enable mode
+        takes_value: false
+    - username:
+        short: u
+        long: username
+        value_name: username
+        help: Username for authentication
+        takes_value: true
+    - password:
+        short: p
+        long: password
+        value_name: password
+        help: Password for authentication
+        takes_value: true
+    - command:
+        short: c
+        long: command
+        value_name: COMMAND
+        help: Command to execute
+        takes_value: true
+        required: true
+    - output:
+        short: o
+        long: output
+        value_name: output
+        help: Output format
+        takes_value: true
+        possible_values:
+          - json
+          - text
+    - DEVICE:
+        help: Device to query
+        required: true
+        index: 1
