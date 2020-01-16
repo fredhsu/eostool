@@ -1,12 +1,12 @@
 // #![deny(warnings)]
 // use std::collections::HashMap;
+use std::env;
 extern crate reqwest;
 // use reqwest::Error;
 extern crate serde;
 use serde::{Deserialize, Serialize};
 extern crate serde_json;
 // use serde_json::json;
-
 
 #[macro_use]
 extern crate clap;
@@ -45,11 +45,22 @@ async fn main() -> Result<(), reqwest::Error> {
     let matches = App::from(yaml).get_matches();
     let command = matches.value_of("command").unwrap();
     let device = matches.value_of("DEVICE").unwrap();
-    let username = matches.value_of("username").unwrap_or("admin");
-    let password = matches.value_of("password").unwrap_or("admin");
+    //let username = matches.value_of("username");
+    let username;
+    //let password = matches.value_of("password").unwrap_or("admin");
+    let password;
     let format = matches.value_of("output").unwrap_or("json");
 
     let mut commands = vec![command.to_string()];
+    match matches.value_of("username") {
+        None => username = env::var("EAPI_USERNAME").unwrap(),
+        Some(match_username) => username = match_username.to_string(),
+    }
+    match matches.value_of("password") {
+        None => password = env::var("EAPI_PASSWORD").unwrap(),
+        Some(match_password) => password = match_password.to_string(),
+    }
+
     if matches.is_present("enable") {
         commands.insert(0, "enable".to_string());
     }
@@ -92,15 +103,17 @@ async fn main() -> Result<(), reqwest::Error> {
         .await?;
 
     if format == "json" {
-      println!("{}", serde_json::to_string_pretty(&res.result).unwrap());
-    }
-    else {
-      //let text_output: String = serde_json::from_value(res.result[1]["output"]).unwrap();
-      let result = &res.result[1];
-      //let text_output: String = serde_json::from_value(result).unwrap();
-      //println!("{}", text_output);
-     println!("{}", serde_json::to_string_pretty(&result["output"]).unwrap());
-     //println!("{:?}", serde_json::to_string(&result).unwrap());
+        println!("{}", serde_json::to_string_pretty(&res.result).unwrap());
+    } else {
+        //let text_output: String = serde_json::from_value(res.result[1]["output"]).unwrap();
+        let result = &res.result[1];
+        //let text_output: String = serde_json::from_value(result).unwrap();
+        //println!("{}", text_output);
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&result["output"]).unwrap()
+        );
+        //println!("{:?}", serde_json::to_string(&result).unwrap());
     }
 
     Ok(())
